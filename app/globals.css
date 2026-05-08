@@ -13,10 +13,11 @@ body {
 }
 
 button,
-input {
+input,textarea {
   border: none;
   outline: none;
   font-family: inherit;
+  font-size: 16px;
 }
 
 .app-container {
@@ -697,5 +698,13 @@ input {
 
   .create-btn {
     width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
   }
 }

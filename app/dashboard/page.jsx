@@ -1,10 +1,9 @@
 "use client";
-import { useState ,useEffect} from "react";
+import { useState, useEffect } from "react";
 import { Trash2 } from "lucide-react";
-import  SideBar  from "@/app/components/SideBar";
-import TopBar from "@/app/components/TopBar"
-import Status from  "../components/Status"
-
+import SideBar from "@/app/components/SideBar";
+import TopBar from "@/app/components/TopBar";
+import Status from "../components/Status";
 
 import {
   Search,
@@ -27,62 +26,95 @@ export default function DashBoard() {
   const [priority, setPriority] = useState("");
   const [date, setDate] = useState("");
   const [toDos, setToDos] = useState([]);
-  const [search,setSearch] = useState("")
-  const[user,setUser]=useState([])
+
+  useEffect(() => {
+    const saved = localStorage.getItem("savedTodo");
+    if (saved) {
+      setToDos(JSON.parse(saved));
+    }
+  }, []);
+
+  const [search, setSearch] = useState("");
+  const [user, setUser] = useState([]);
+
+  // Save to localStorage whenever todos change
+  useEffect(() => {
+    localStorage.setItem("savedTodo", JSON.stringify(toDos));
+  }, [toDos]);
 
   const handleClick = () => {
-    const newTasks = {
+    const newTask = {
       id: Date.now(),
-      title: title,
-      description: description,
-      priority: priority,
+      title,
+      description,
+      priority,
       due: date,
       status: false,
     };
-    setToDos([newTasks, ...toDos]);
+
+    setToDos([newTask, ...toDos]);
+
+    // clear inputs
+    setTitle("");
+    setDescription("");
+    setPriority("");
+    setDate("");
   };
 
-  const finished = toDos.filter((item)=>item.status==true)
-  const pending = toDos.filter((item)=>item.status==false)
+  const finished = toDos.filter((item) => item.status === true);
+  const pending = toDos.filter((item) => item.status === false);
 
-  const handleDelete = (itemsTodelete) => {
-    setToDos(toDos.filter((item) => item.id !== itemsTodelete));
+  const handleDelete = (id) => {
+    setToDos(toDos.filter((item) => item.id !== id));
   };
 
-  const searchTodo =toDos.filter((item)=>
-    item.title.toLowerCase().includes(search.toLowerCase())
-  )
+  const handleChecked = (id) => {
+    setToDos(
+      toDos.map((item) =>
+        item.id === id ? { ...item, status: !item.status } : item,
+      ),
+    );
+  };
 
-  
+  const searchTodo = toDos.filter((item) =>
+    item.title.toLowerCase().includes(search.toLowerCase()),
+  );
 
-  const handleChecked = (id) =>{
-    setToDos(toDos.map((item)=>
-      id==item.id?{...item, status:!item.status}:item
-    ))
-
-  }
-console.log(Search)
-
-
-useEffect(() => {
+  useEffect(() => {
     const userData = localStorage.getItem("user");
-    const parsedUser = userData ? JSON.parse(userData) : null;
-    setUser(parsedUser);
+    setUser(userData ? JSON.parse(userData) : null);
   }, []);
-  
+
   return (
     <div className="app-container">
-      {/* Sidebar */}
-      <SideBar sidebarOpen={sidebarOpen}LayoutDashboard={LayoutDashboard}CheckCircle2={CheckCircle2}Calendar={Calendar}Folder={Folder}Star={Star}/>
-      {/* Main Content */}
+      <SideBar
+        sidebarOpen={sidebarOpen}
+        LayoutDashboard={LayoutDashboard}
+        CheckCircle2={CheckCircle2}
+        Calendar={Calendar}
+        Folder={Folder}
+        Star={Star}
+      />
+
       <main className="main-content">
-        {/* Topbar */}
-     <TopBar Menu={Menu} Search={Search} search={search} setSearch={setSearch} setSidebarOpen={setSidebarOpen} user={user} />
+        <TopBar
+          Menu={Menu}
+          Search={Search}
+          search={search}
+          setSearch={setSearch}
+          setSidebarOpen={setSidebarOpen}
+          user={user}
+        />
 
-        {/* Stats */}
-        <Status toDos={toDos} CheckCircle2={CheckCircle2}finished={finished} Star={Star} pending={pending} Clock3={Clock3} />
+        <Status
+          toDos={toDos}
+          finished={finished}
+          pending={pending}
+          CheckCircle2={CheckCircle2}
+          Star={Star}
+          Clock3={Clock3}
+        />
 
-        {/* Task Section */}
         <section className="task-section">
           <div className="section-header">
             <div>
@@ -117,26 +149,32 @@ useEffect(() => {
                   <input
                     type="text"
                     placeholder="Task title"
+                    value={title}
                     onChange={(e) => setTitle(e.target.value)}
                   />
 
                   <textarea
-                    onChange={(e) => setDescription(e.target.value)}
                     placeholder="Task description"
                     rows={5}
-                  ></textarea>
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                  />
 
                   <div className="modal-row">
-                    <select onChange={(e) => setPriority(e.target.value)}>
-                      <option>Priority</option>
-                      <option>High</option>
-                      <option>Medium</option>
-                      <option>Low</option>
+                    <select
+                      value={priority}
+                      onChange={(e) => setPriority(e.target.value)}
+                    >
+                      <option value="">Priority</option>
+                      <option value="High">High</option>
+                      <option value="Medium">Medium</option>
+                      <option value="Low">Low</option>
                     </select>
 
                     <input
-                      onChange={(e) => setDate(e.target.value)}
                       type="date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
                     />
                   </div>
 
@@ -154,7 +192,7 @@ useEffect(() => {
               <div className="task-card" key={task.id}>
                 <div className="task-top">
                   <span
-                    className={`priority-badge ${task.priority.toLowerCase()}`}
+                    className={`priority-badge ${task.priority?.toLowerCase()}`}
                   >
                     {task.priority}
                   </span>
@@ -166,32 +204,16 @@ useEffect(() => {
                 <p>{task.description}</p>
 
                 <div className="task-info">
-                  <span>{task.category}</span>
                   <span>{task.due}</span>
-                </div>
-
-                <div className="progress-section">
-                  <div className="progress-top">
-                    <span>Progress</span>
-                    <span>{task.progress}%</span>
-                  </div>
-
-                  <div className="progress-bar">
-                    <div
-                      className="progress-fill"
-                      style={{ width: `${task.progress}%` }}
-                    ></div>
-                  </div>
                 </div>
 
                 <div className="task-actions">
                   <label className="check-container">
                     <input
-                    checked={task.status}
-                      onChange={()=>handleChecked(task.id)}
                       type="checkbox"
+                      checked={task.status}
+                      onChange={() => handleChecked(task.id)}
                     />
-                    <span className="checkmark"></span>
                   </label>
 
                   <button
