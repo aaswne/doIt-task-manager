@@ -571,6 +571,12 @@ input,textarea {
     padding: 16px;
   }
 
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+
   .topbar-left {
     width: 100%;
     justify-content: space-between;
@@ -701,10 +707,3 @@ input,textarea {
   }
 }
 
-@media (max-width: 768px) {
-  input,
-  textarea,
-  select {
-    font-size: 16px;
-  }
-}
