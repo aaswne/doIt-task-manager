@@ -20,7 +20,6 @@ import {
 export default function DashBoard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showModal, setShowModal] = useState(false);
-
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("");
@@ -29,15 +28,12 @@ export default function DashBoard() {
 
   useEffect(() => {
     const saved = localStorage.getItem("savedTodo");
-    if (saved) {
-      setToDos(JSON.parse(saved));
-    }
+    if (saved) setToDos(JSON.parse(saved));
   }, []);
 
   const [search, setSearch] = useState("");
   const [user, setUser] = useState([]);
 
-  // Save to localStorage whenever todos change
   useEffect(() => {
     localStorage.setItem("savedTodo", JSON.stringify(toDos));
   }, [toDos]);
@@ -51,14 +47,12 @@ export default function DashBoard() {
       due: date,
       status: false,
     };
-
     setToDos([newTask, ...toDos]);
-
-    // clear inputs
     setTitle("");
     setDescription("");
     setPriority("");
     setDate("");
+    setShowModal(false);
   };
 
   const finished = toDos.filter((item) => item.status === true);
@@ -71,13 +65,13 @@ export default function DashBoard() {
   const handleChecked = (id) => {
     setToDos(
       toDos.map((item) =>
-        item.id === id ? { ...item, status: !item.status } : item,
-      ),
+        item.id === id ? { ...item, status: !item.status } : item
+      )
     );
   };
 
   const searchTodo = toDos.filter((item) =>
-    item.title.toLowerCase().includes(search.toLowerCase()),
+    item.title.toLowerCase().includes(search.toLowerCase())
   );
 
   useEffect(() => {
@@ -117,11 +111,10 @@ export default function DashBoard() {
 
         <section className="task-section">
           <div className="section-header">
-            <div>
+            <div className="textHead">
               <h2>Today's Tasks</h2>
               <p>Your ongoing productivity workflow</p>
             </div>
-
             <button className="add-task-btn" onClick={() => setShowModal(true)}>
               <Plus size={18} />
               Add Task
@@ -136,7 +129,6 @@ export default function DashBoard() {
                     <h2>Create Task</h2>
                     <p>Add your next productivity task</p>
                   </div>
-
                   <button
                     className="close-modal"
                     onClick={() => setShowModal(false)}
@@ -152,14 +144,12 @@ export default function DashBoard() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                   />
-
                   <textarea
                     placeholder="Task description"
                     rows={5}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                   />
-
                   <div className="modal-row">
                     <select
                       value={priority}
@@ -170,14 +160,12 @@ export default function DashBoard() {
                       <option value="Medium">Medium</option>
                       <option value="Low">Low</option>
                     </select>
-
                     <input
                       type="date"
                       value={date}
                       onChange={(e) => setDate(e.target.value)}
                     />
                   </div>
-
                   <button onClick={handleClick} className="create-btn">
                     <Plus size={18} />
                     Create Task
@@ -190,32 +178,58 @@ export default function DashBoard() {
           <div className="task-grid">
             {searchTodo.map((task) => (
               <div className="task-card" key={task.id}>
+
+                {/* Desktop: priority + more */}
                 <div className="task-top">
-                  <span
-                    className={`priority-badge ${task.priority?.toLowerCase()}`}
-                  >
+                  <span className={`priority-badge ${task.priority?.toLowerCase()}`}>
                     {task.priority}
                   </span>
-
                   <button className="task-more">•••</button>
                 </div>
 
-                <h3>{task.title}</h3>
-                <p>{task.description}</p>
+                {/* Mobile only: checkbox (left) */}
+                <label className="check-container">
+                  <input
+                    type="checkbox"
+                    checked={task.status}
+                    onChange={() => handleChecked(task.id)}
+                  />
+                  <span className="check-icon">
+                    <CheckCircle2 size={18} />
+                  </span>
+                </label>
 
+                {/* Title + description */}
+                <div className="task-text">
+                  <h3>{task.title}</h3>
+                  <p>{task.description}</p>
+                </div>
+
+                {/* Desktop: due date */}
                 <div className="task-info">
                   <span>{task.due}</span>
                 </div>
 
+                {/* Mobile only: delete (right) */}
+                <button
+                  onClick={() => handleDelete(task.id)}
+                  className=" mobile-delete"
+                >
+                  <Trash2 size={18} />
+                </button>
+
+                {/* Desktop only: checkbox + delete */}
                 <div className="task-actions">
-                  <label className="check-container">
+                  <label className="check-container desktop-check">
                     <input
                       type="checkbox"
                       checked={task.status}
                       onChange={() => handleChecked(task.id)}
                     />
+                    <span className="check-icon">
+                      <CheckCircle2 size={18} />
+                    </span>
                   </label>
-
                   <button
                     onClick={() => handleDelete(task.id)}
                     className="delete-btn"
@@ -223,6 +237,7 @@ export default function DashBoard() {
                     <Trash2 size={18} />
                   </button>
                 </div>
+
               </div>
             ))}
           </div>
