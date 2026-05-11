@@ -34,6 +34,7 @@ export default function Page() {
           />
 
           <input
+          placeholder="Enter your birthday"
             type="date"
             value={dob}
             onChange={(e) => setDob(e.target.value)}
